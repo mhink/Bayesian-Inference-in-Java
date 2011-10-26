@@ -46,8 +46,8 @@ public class AIProject2 {
         Factor f4 = new Factor(
                 new RandomVariable[]{A},
                 new Double[]{
-                    .9, .1,
-                    .05, .95
+                    .9,
+                    .05
                 });
         Factor j = new Factor(
                 new RandomVariable[]{J},
@@ -57,8 +57,8 @@ public class AIProject2 {
         Factor f5 = new Factor(
                 new RandomVariable[]{A},
                 new Double[]{
-                    .7, .3, 
-                    .01, .99
+                    .7,
+                    .01
                 });
         Factor m = new Factor(
                 new RandomVariable[]{M},
@@ -67,7 +67,7 @@ public class AIProject2 {
                 });
         
         RandomVariable[] nuisance = new RandomVariable[]{E, A};
-        Factor[] factors = new Factor[]{f1, f2, f3, f4, f5, j, m};
+        Factor[] factors = new Factor[]{f1, f2, f3, f4, f5};
         
         Factor result = variableElimination(factors, nuisance);
         
@@ -82,30 +82,39 @@ public class AIProject2 {
         List<Factor> factorList = new ArrayList<Factor>(Arrays.asList(factors));
         RandomVariable[] ordered = variableSort(nuisance);
         
-        //Add
-        for(int i = nuisance.length-1; i >= 0; i--) {
-            Factor currentProduct = null;
-            System.out.println("Multiplying factors containing: " + nuisance[i].name);
-            List<Factor> nextList = new ArrayList<Factor>(factorList);
-            for(Factor factor : factorList) {
-                if(Arrays.asList(factor.variables).contains(nuisance[i])) {
-                    System.out.print("Factor " + Arrays.asList(factors).indexOf(factor));
-                    System.out.println(" is being multiplied");
-                    if(currentProduct == null) {
-                        currentProduct = factor;
-                    }
-                    else currentProduct = currentProduct.pointwiseMultiplyBy(factor);
-                    
-                    nextList.remove(factor);
-                }
-                factorList = nextList;
-            }
+        while(factorList.size() > 1) {
+            System.out.println("Number of factors: " + factorList.size());
             
-            System.out.println("Summing out nuisance variable: " + nuisance[i].name);
-            Factor marginalized = currentProduct.marginalize(nuisance[i]);
+            if(ordered.length == 0) {
+                Factor toReturn = factorList.get(0).pointwiseMultiplyBy(factorList.get(1));
+                return toReturn;
+            }
+            RandomVariable sumOver = ordered[ordered.length - 1];
+            ordered = Arrays.asList(ordered).subList(0, ordered.length - 1).toArray(new RandomVariable[0]);
+            
+            List<Factor> variablesToMultiply = new ArrayList<Factor>();
+            
+            System.out.print("Multiplying factors {");
+            for(Factor factor : factorList) {
+                if(Arrays.asList(factor.variables).contains(sumOver)) {
+                    System.out.print(factorList.indexOf(factor) + " ");
+                    variablesToMultiply.add(factor);
+                }
+            }
+            System.out.println("}");
+            
+            Factor product = null;
+            
+            for(Factor factor : variablesToMultiply) {
+                if(product == null) product = factor;
+                else product = product.pointwiseMultiplyBy(factor);
+                factorList.remove(factor);
+            }
+            System.out.println("Marginalizing over " + sumOver.name);
+            Factor marginalized = product.marginalize(sumOver);      
             factorList.add(marginalized);
         }
         
-        return factorList.get(factorList.size()-1);
+        return factorList.get(0);
     }
 }
