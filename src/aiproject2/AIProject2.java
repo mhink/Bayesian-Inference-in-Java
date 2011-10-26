@@ -58,72 +58,161 @@ public class AIProject2 {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        RandomVariable B = new RandomVariable("B", 2, new RandomVariable[]{});
-        RandomVariable E = new RandomVariable("E", 2, new RandomVariable[]{});
-        RandomVariable A = new RandomVariable("A", 2, new RandomVariable[]{B, E});
-        RandomVariable J = new RandomVariable("J", 2, new RandomVariable[]{A});
-        RandomVariable M = new RandomVariable("M", 2, new RandomVariable[]{A});
+        RandomVariable V = new RandomVariable("V", 2 , new RandomVariable[]{});
+        RandomVariable S = new RandomVariable("S", 4, new RandomVariable[]{});
+        RandomVariable T = new RandomVariable("T", 2, new RandomVariable[]{V});
+        RandomVariable L = new RandomVariable("L", 2, new RandomVariable[]{S});
+        RandomVariable A = new RandomVariable("A", 2, new RandomVariable[]{T, L});
+        RandomVariable B = new RandomVariable("B", 4, new RandomVariable[]{S});
+        RandomVariable X = new RandomVariable("X", 2, new RandomVariable[]{A});
+        RandomVariable D = new RandomVariable("D", 2, new RandomVariable[]{B, A});
         
         Factor f1 = new Factor(
-                new RandomVariable[]{B},
+                new RandomVariable[]{V},
                 new Double[]{
-                   .999, .001 
+                    0.2, 0.8
                 });
         Factor f2 = new Factor(
-                new RandomVariable[]{E},
+                new RandomVariable[]{S},
                 new Double[]{
-                    .998, .002
+                    0.25, 0.2, 0.1, 0.45
                 });
         Factor f3 = new Factor(
-                new RandomVariable[]{B, E, A},
+                new RandomVariable[]{V, T},
                 new Double[]{
-                    .999, .001,
-                    .71, .29,
-                    .06, .94,
-                    .05, .95
+                    0.40, 0.60,
+                    0.35, 0.65
                 });
         Factor f4 = new Factor(
-                new RandomVariable[]{A, J},
+                new RandomVariable[]{S, L},
                 new Double[]{
-                    .95, .05,
-                    .1, .9
-                });
-        
-        Factor j = new Factor(
-                new RandomVariable[]{J},
-                new Double[] {
-                   0.0,
-                   1.0 
-                });
-        Factor m = new Factor(
-                new RandomVariable[]{M},
-                new Double[] {
-                   0.0,
-                   1.0 
+                    0.40, 0.60,
+                    0.60, 0.40,
+                    0.30, 0.70,
+                    0.80, 0.20
                 });
         
         Factor f5 = new Factor(
-                new RandomVariable[]{A, M},
-                new Double[]{
-                    .99, .01,
-                    .3, .7
+                new RandomVariable[]{T, L, A},
+                new Double[] {
+                   0.15, 0.85,
+                   0.25, 0.75,
+                   0.65, 0.35,
+                   0.80, 0.20
+                });
+        Factor f6 = new Factor(
+                new RandomVariable[]{S, B},
+                new Double[] {
+                   0.625, 0.375, 0.000, 0.000,
+                   0.600, 0.000, 0.000, 0.400,
+                   0.250, 0.050, 0.500, 0.200,
+                   0.350, 0.150, 0.450, 0.050
                 });
         
-        RandomVariable[] nuisance = new RandomVariable[]{E, A, J, M};
-        Factor[] factors = new Factor[]{f1, f2, f3, f4, f5, j, m};
+        Factor f7 = new Factor(
+                new RandomVariable[]{A, X},
+                new Double[]{
+                    0.3, 0.7,
+                    0.9, 0.1
+                });
+        Factor f8 = new Factor(
+                new RandomVariable[]{B, A, D} ,
+                new Double[] {
+                   0.3, 0.7,
+                   0.6, 0.4,
+                   0.75, 0.25,
+                   0.35, 0.65,
+                   0.25, 0.75,
+                   0.8, 0.2,
+                   0.7, 0.3,
+                   0.3, 0.7
+                });
         
-        Factor resultN = variableElimination(factors, nuisance, new MinNeighborsComparator()).normalize();
-        System.out.println("Number of multiply operations performed: " + resultN.multiplies);
+        RandomVariable[] vars1 = new RandomVariable[]{S, T, L, A, B, X, D};
+        RandomVariable[] vars2 = new RandomVariable[]{V, S, T, L, A, B, X};
+        RandomVariable[] vars3 = new RandomVariable[]{V, S, T, L, A, B, D};
+        
+        Factor eX0 = new Factor(
+                new RandomVariable[]{X},
+                new Double[] {
+                   1.0, 0.0 
+                });
+        Factor eD1 = new Factor(
+                new RandomVariable[]{D},
+                new Double[] {
+                    0.0, 1.0
+                });
+        Factor eV0 = new Factor(
+                new RandomVariable[]{V},
+                new Double[] {
+                    1.0, 0.0
+                });
+        Factor eS1 = new Factor(
+                new RandomVariable[]{S},
+                new Double[] {
+                    0.0, 1.0, 0.0, 0.0
+                });
+        Factor eV1 = new Factor(
+                new RandomVariable[]{V},
+                new Double[]{
+                    0.0, 1.0
+                });
+                
+                
+        Factor[] factors1 = new Factor[]{f1, f2, f3, f4, f5, f6, f7, f8, eX0, eD1};
+        Factor[] factors2 = new Factor[]{f1, f2, f3, f4, f5, f6, f7, f8, eV0, eS1};
+        Factor[] factors3 = new Factor[]{f1, f2, f3, f4, f5, f6, f7, f8, eV1};
+        
+        System.out.println("Inference task 1- Min-Neighbors Heuristic");
+        Factor result1 = variableElimination(factors1, vars1, new MinNeighborsComparator()).normalize();
+        System.out.println("Number of multiply operations performed: " + result1.multiplies);
         System.out.print("{");
-        for(double d : resultN.distribution) {
+        for(double d : result1.distribution) {
             System.out.print(d + " ");
         }
-        System.out.println("}");
-        System.out.println("");
-        Factor resultW = variableElimination(factors, nuisance, new MinWeightComparator()).normalize();
-        System.out.println("Number of multiply operations performed: " + resultW.multiplies);
+        System.out.println("}\n");
+        
+        System.out.println("Inference task 2- Min-Neighbors Heuristic");
+        Factor result2 = variableElimination(factors2, vars2, new MinNeighborsComparator()).normalize();
+        System.out.println("Number of multiply operations performed: " + result2.multiplies);
         System.out.print("{");
-        for(double d : resultW.distribution) {
+        for(double d : result2.distribution) {
+            System.out.print(d + " ");
+        }
+        System.out.println("}\n");
+        
+        System.out.println("Inference task 3- Min-Neighbors Heuristic");
+        Factor result3 = variableElimination(factors3, vars3, new MinNeighborsComparator()).normalize();
+        System.out.println("Number of multiply operations performed: " + result3.multiplies);
+        System.out.print("{");
+        for(double d : result3.distribution) {
+            System.out.print(d + " ");
+        }
+        System.out.println("}\n");
+        
+        System.out.println("Inference task 1- Min-Weight Heuristic");
+        Factor result4 = variableElimination(factors1, vars1, new MinWeightComparator()).normalize();
+        System.out.println("Number of multiply operations performed: " + result1.multiplies);
+        System.out.print("{");
+        for(double d : result1.distribution) {
+            System.out.print(d + " ");
+        }
+        System.out.println("}\n");
+        
+        System.out.println("Inference task 2- Min-Weight Heuristic");
+        Factor result5 = variableElimination(factors2, vars2, new MinWeightComparator()).normalize();
+        System.out.println("Number of multiply operations performed: " + result2.multiplies);
+        System.out.print("{");
+        for(double d : result2.distribution) {
+            System.out.print(d + " ");
+        }
+        System.out.println("}\n");
+        
+        System.out.println("Inference task 3- Min-Weight Heuristic");
+        Factor result6 = variableElimination(factors3, vars3, new MinWeightComparator()).normalize();
+        System.out.println("Number of multiply operations performed: " + result3.multiplies);
+        System.out.print("{");
+        for(double d : result3.distribution) {
             System.out.print(d + " ");
         }
         System.out.println("}");
@@ -140,7 +229,6 @@ public class AIProject2 {
         Arrays.sort(ordered, comp);
         
         while(factorList.size() > 1) {
-            System.out.println("Number of factors: " + factorList.size());
             
             if(ordered.length == 0) {
                 Factor toReturn = factorList.get(0).pointwiseMultiplyBy(factorList.get(1));
@@ -151,14 +239,11 @@ public class AIProject2 {
             
             List<Factor> variablesToMultiply = new ArrayList<Factor>();
             
-            System.out.print("Multiplying factors {");
             for(Factor factor : factorList) {
                 if(Arrays.asList(factor.variables).contains(sumOver)) {
-                    System.out.print(factorList.indexOf(factor) + " ");
                     variablesToMultiply.add(factor);
                 }
             }
-            System.out.println("}");
             
             Factor product = null;
             
@@ -167,7 +252,6 @@ public class AIProject2 {
                 else product = product.pointwiseMultiplyBy(factor);
                 factorList.remove(factor);
             }
-            System.out.println("Marginalizing over " + sumOver.name);
             Factor marginalized = product.marginalize(sumOver);      
             factorList.add(marginalized);
         }
