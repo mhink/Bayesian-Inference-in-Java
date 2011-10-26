@@ -131,6 +131,9 @@ public class AIProject2 {
         RandomVariable[] vars1 = new RandomVariable[]{S, T, L, A, B, X, D};
         RandomVariable[] vars2 = new RandomVariable[]{V, S, T, L, A, B, X};
         RandomVariable[] vars3 = new RandomVariable[]{V, S, T, L, A, B, D};
+        RandomVariable[] order1 = vars1.clone();
+        RandomVariable[] order2 = vars2.clone();
+        RandomVariable[] order3 = vars3.clone();
         
         Factor eX0 = new Factor(
                 new RandomVariable[]{X},
@@ -165,6 +168,12 @@ public class AIProject2 {
         
         System.out.println("Inference task 1- Min-Neighbors Heuristic");
         Factor result1 = variableElimination(factors1, vars1, new MinNeighborsComparator()).normalize();
+        Arrays.sort(order1, new MinNeighborsComparator());
+        System.out.print("Variable ordering: ");
+        for(RandomVariable rv : order1) {
+            System.out.print(rv.name + " ");
+        }
+        System.out.println("");
         System.out.println("Number of multiply operations performed: " + result1.multiplies);
         System.out.print("{");
         for(double d : result1.distribution) {
@@ -174,6 +183,12 @@ public class AIProject2 {
         
         System.out.println("Inference task 2- Min-Neighbors Heuristic");
         Factor result2 = variableElimination(factors2, vars2, new MinNeighborsComparator()).normalize();
+        Arrays.sort(order2, new MinNeighborsComparator());
+        System.out.print("Variable ordering: ");
+        for(RandomVariable rv : order2) {
+            System.out.print(rv.name + " ");
+        }
+        System.out.println("");
         System.out.println("Number of multiply operations performed: " + result2.multiplies);
         System.out.print("{");
         for(double d : result2.distribution) {
@@ -182,7 +197,13 @@ public class AIProject2 {
         System.out.println("}\n");
         
         System.out.println("Inference task 3- Min-Neighbors Heuristic");
-        Factor result3 = variableElimination(factors3, vars3, new MinNeighborsComparator()).normalize();
+        Factor order3 = variableElimination(factors3, vars3, new MinNeighborsComparator()).normalize();
+        Arrays.sort(order3, new MinNeighborsComparator());
+        System.out.print("Variable ordering: ");
+        for(RandomVariable rv : vars3) {
+            System.out.print(rv.name + " ");
+        }
+        System.out.println("");
         System.out.println("Number of multiply operations performed: " + result3.multiplies);
         System.out.print("{");
         for(double d : result3.distribution) {
@@ -190,8 +211,18 @@ public class AIProject2 {
         }
         System.out.println("}\n");
         
+        RandomVariable[] order1 = vars1.clone();
+        RandomVariable[] order2 = vars2.clone();
+        RandomVariable[] order3 = vars3.clone();
+        
         System.out.println("Inference task 1- Min-Weight Heuristic");
         Factor result4 = variableElimination(factors1, vars1, new MinWeightComparator()).normalize();
+        Arrays.sort(order1, new MinWeightComparator());
+        System.out.print("Variable ordering: ");
+        for(RandomVariable rv : order1) {
+            System.out.print(rv.name + " ");
+        }
+        System.out.println("");
         System.out.println("Number of multiply operations performed: " + result1.multiplies);
         System.out.print("{");
         for(double d : result1.distribution) {
@@ -201,6 +232,11 @@ public class AIProject2 {
         
         System.out.println("Inference task 2- Min-Weight Heuristic");
         Factor result5 = variableElimination(factors2, vars2, new MinWeightComparator()).normalize();
+        Arrays.sort(order2, new MinWeightComparator());
+        System.out.print("Variable ordering: ");
+        for(RandomVariable rv : order2) {
+            System.out.print(rv.name + " ");
+        }
         System.out.println("Number of multiply operations performed: " + result2.multiplies);
         System.out.print("{");
         for(double d : result2.distribution) {
@@ -210,6 +246,11 @@ public class AIProject2 {
         
         System.out.println("Inference task 3- Min-Weight Heuristic");
         Factor result6 = variableElimination(factors3, vars3, new MinWeightComparator()).normalize();
+        Arrays.sort(order3, new MinWeightComparator());
+        System.out.print("Variable ordering: ");
+        for(RandomVariable rv : order3) {
+            System.out.print(rv.name + " ");
+        }
         System.out.println("Number of multiply operations performed: " + result3.multiplies);
         System.out.print("{");
         for(double d : result3.distribution) {
