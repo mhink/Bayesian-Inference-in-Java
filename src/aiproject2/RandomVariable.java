@@ -17,10 +17,18 @@ public class RandomVariable {
   
     public int numStates;
     public String name;
+    public List<RandomVariable> parents;
+    public List<RandomVariable> children;
     
-    public RandomVariable(String name, int numStates) {
+    public RandomVariable(String name, int numStates, RandomVariable[] parents) {
         this.name = name;
         this.numStates = numStates;
+        this.parents = new ArrayList<RandomVariable>(Arrays.asList(parents));
+        this.children = new ArrayList();
+        if(parents.length > 0)
+            for(RandomVariable rv : parents) {
+               rv.children.add(this);
+            }
     }
     
     @Override

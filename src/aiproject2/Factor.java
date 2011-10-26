@@ -126,6 +126,16 @@ public class Factor {
     }
     
     public Factor normalize() {
-        return this;
+        double norm = 0d;
+        Double[] result = new Double[distribution.length];
+        for(double d : distribution) {
+            norm += d;
+        }
+        
+        for(int i = 0; i < distribution.length; i++) {
+            result[i] = distribution[i] / norm;
+        }
+        
+        return new Factor(variables, result);
     }
 }
