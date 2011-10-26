@@ -16,11 +16,30 @@ import java.util.Vector;
  */
 public class AIProject2 {
     
-    public class MinWeightComparator implements Comparator<RandomVariable> {
+    public static class MinWeightComparator implements Comparator<RandomVariable> {
 
         @Override
         public int compare(RandomVariable o1, RandomVariable o2) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            int o1weight = 1;
+            int o2weight = 1;
+            
+            for(RandomVariable child : o1.children) {
+                o1weight *= child.numStates;
+            }
+            for(RandomVariable parent : o1.parents) {
+                o1weight *= parent.numStates;
+            }
+            for(RandomVariable child : o2.children) {
+                o2weight *= child.numStates;
+            }
+            for(RandomVariable parent : o2.children) {
+                o2weight *= parent.numStates;
+            }
+            
+            if(o1weight < o2weight) return -1;
+            if(o1weight == o2weight) return 0;
+            if(o1weight > o2weight) return 1;
+            return 0;
         }
         
     }
@@ -93,13 +112,22 @@ public class AIProject2 {
         RandomVariable[] nuisance = new RandomVariable[]{E, A, J, M};
         Factor[] factors = new Factor[]{f1, f2, f3, f4, f5, j, m};
         
-        Factor result = variableElimination(factors, nuisance, new MinNeighborsComparator()).normalize();
-        
+        Factor resultN = variableElimination(factors, nuisance, new MinNeighborsComparator()).normalize();
+        System.out.println("Number of multiply operations performed: " + resultN.multiplies);
         System.out.print("{");
-        for(double d : result.distribution) {
+        for(double d : resultN.distribution) {
             System.out.print(d + " ");
         }
         System.out.println("}");
+        System.out.println("");
+        Factor resultW = variableElimination(factors, nuisance, new MinWeightComparator()).normalize();
+        System.out.println("Number of multiply operations performed: " + resultW.multiplies);
+        System.out.print("{");
+        for(double d : resultW.distribution) {
+            System.out.print(d + " ");
+        }
+        System.out.println("}");
+        
     }
     
     public static void minNeighborsSort(RandomVariable[] nuisance) {
@@ -118,8 +146,8 @@ public class AIProject2 {
                 Factor toReturn = factorList.get(0).pointwiseMultiplyBy(factorList.get(1));
                 return toReturn;
             }
-            RandomVariable sumOver = ordered[ordered.length - 1];
-            ordered = Arrays.asList(ordered).subList(0, ordered.length - 1).toArray(new RandomVariable[0]);
+            RandomVariable sumOver = ordered[0];
+            ordered = Arrays.asList(ordered).subList(1, ordered.length).toArray(new RandomVariable[0]);
             
             List<Factor> variablesToMultiply = new ArrayList<Factor>();
             

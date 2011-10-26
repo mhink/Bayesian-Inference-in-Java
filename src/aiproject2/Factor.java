@@ -15,10 +15,17 @@ import java.util.Arrays;
 public class Factor {
     RandomVariable[] variables;
     Double[] distribution;
+    public int multiplies = 0;
     
     public Factor(RandomVariable[] vars, Double[] distribution) {
         this.variables = vars;
         this.distribution = distribution;
+    }
+    
+    public Factor(RandomVariable[] vars, Double[] distribution, int multiplies) {
+        this.variables = vars;
+        this.distribution = distribution;
+        this.multiplies = multiplies;
     }
     
     public Factor pointwiseMultiplyBy(Factor other) {
@@ -56,11 +63,12 @@ public class Factor {
                         indices.toArray(new Integer[0])));
             }
             for(Integer j : indices) {
+                multiplies++;
                 resultant.add(this.distribution[i] * other.distribution[j]);
             }
         }
         
-        return new Factor(join.toArray(new RandomVariable[0]), resultant.toArray(new Double[0]));
+        return new Factor(join.toArray(new RandomVariable[0]), resultant.toArray(new Double[0]), this.multiplies+other.multiplies);
     }
     
     private int whichState(RandomVariable rv, RandomVariable[] rvs, int index) {
@@ -122,7 +130,7 @@ public class Factor {
         ArrayList<RandomVariable> newVars = new ArrayList<RandomVariable>(Arrays.asList(this.variables));
         newVars.remove(rv);
         
-        return new Factor(newVars.toArray(new RandomVariable[0]), marginalizedArray);        
+        return new Factor(newVars.toArray(new RandomVariable[0]), marginalizedArray, this.multiplies);        
     }
     
     public Factor normalize() {
@@ -136,6 +144,6 @@ public class Factor {
             result[i] = distribution[i] / norm;
         }
         
-        return new Factor(variables, result);
+        return new Factor(variables, result, multiplies);
     }
 }
